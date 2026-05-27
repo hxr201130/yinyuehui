@@ -1,0 +1,411 @@
+以下是您要求的音乐会节目单网页的完整代码。已移除“氛围配乐”和“自动播放”相关的文字与控件框，但保留了背景音乐的自动播放功能。页面保持淡绿色清新风格，仅展示节目信息与演出名单。
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>音乐会节目单 · 清新乐章</title>
+    <!-- Font Awesome 6 (仅用于极少数装饰，如指挥棒、页脚音符，无播放条) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 优雅字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* 淡绿色主背景 — 清新温润 */
+            background: linear-gradient(145deg, #eef5ea 0%, #e2ecd9 100%);
+            font-family: 'Inter', sans-serif;
+            color: #2a3a2a;
+            padding: 2rem 1.5rem;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* 背景音乐贴纸（仅浮动装饰，不在文字或边框上干扰） */
+        .music-sticker {
+            position: fixed;
+            font-size: 2.2rem;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+        }
+        .sticker-1 { top: 6%; left: 2%; transform: rotate(-8deg); font-size: 4rem; opacity: 0.12; }
+        .sticker-2 { bottom: 12%; right: 2%; transform: rotate(12deg); font-size: 4.5rem; opacity: 0.09; }
+        .sticker-3 { top: 28%; right: 3%; font-size: 3.2rem; opacity: 0.1; transform: rotate(5deg); }
+        .sticker-4 { bottom: 22%; left: 3%; font-size: 3.8rem; opacity: 0.08; }
+        .sticker-5 { top: 70%; left: 8%; font-size: 2.8rem; opacity: 0.09; }
+        .sticker-6 { top: 45%; left: 85%; font-size: 2.5rem; opacity: 0.1; }
+        .sticker-7 { bottom: 45%; right: 88%; font-size: 2rem; opacity: 0.12; }
+        .sticker-8 { top: 82%; left: 92%; font-size: 3rem; opacity: 0.07; }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 头部区域 — 无任何音乐播放条 */
+        .hero {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: linear-gradient(145deg, #5f8b5c, #3b6e3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 12px rgba(0,0,0,0.03);
+            margin-bottom: 0.75rem;
+        }
+
+        /* 节目卡片 — 完全无装饰边框和多余符号 */
+        .program-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .program-card {
+            background: rgba(255, 254, 248, 0.98);
+            border-radius: 1.8rem;
+            box-shadow: 0 12px 28px -10px rgba(60, 80, 40, 0.12), 0 0 0 1px #dde8cf;
+            transition: transform 0.25s ease, box-shadow 0.25s;
+            overflow: hidden;
+        }
+        .program-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px -12px rgba(60, 80, 40, 0.2);
+        }
+
+        .card-header {
+            background: #f4fbea;
+            padding: 1.2rem 2rem;
+            border-bottom: 2px solid #daebc4;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .program-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6f9e55;
+            background: #f1ffe3;
+            width: 52px;
+            height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 40px;
+            box-shadow: inset 0 0 0 1px #cfe2bb;
+        }
+        .title-wrap {
+            flex: 1;
+        }
+        .program-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            color: #3d6135;
+            letter-spacing: -0.2px;
+        }
+        .program-conductor {
+            font-size: 0.9rem;
+            color: #8baa73;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-body {
+            padding: 1.6rem 2rem 2rem 2rem;
+        }
+        /* 分组样式 — 无任何图标符号，保持干净 */
+        .ensemble-group {
+            margin-bottom: 1.4rem;
+            border-left: 3px solid #cbe2b5;
+            padding-left: 1.2rem;
+        }
+        .ensemble-group h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #789f5e;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.6rem;
+        }
+        .musician-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 1rem;
+            align-items: center;
+        }
+        .musician-tag {
+            background: #fafff2;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #47663b;
+            border: 1px solid #d8eac6;
+            transition: all 0.1s;
+        }
+        .teacher-tag {
+            background: #eef5e4;
+            color: #5e7e4c;
+            border-color: #cde0b5;
+            font-style: italic;
+        }
+        .small-note {
+            font-size: 0.75rem;
+            color: #8aa87a;
+            margin-top: 1rem;
+            text-align: right;
+            font-style: italic;
+        }
+        .guide-list {
+            background: #f2f9e9;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+        .guide-list h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #7ba062;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 680px) {
+            body { padding: 1rem; }
+            .hero h1 { font-size: 2.6rem; }
+            .card-header { padding: 1rem 1.2rem; }
+            .card-body { padding: 1.2rem; }
+            .program-title { font-size: 1.25rem; }
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.75rem;
+            color: #8eaa7a;
+            border-top: 1px dashed #cde0b5;
+            padding-top: 1.8rem;
+        }
+        .footer-note {
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        /* 隐藏音频控件，但音频仍可以自动播放 */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 背景音乐贴纸（柔和飘浮，不干扰文字区域） -->
+<div class="music-sticker sticker-1">🎵</div>
+<div class="music-sticker sticker-2">🎶</div>
+<div class="music-sticker sticker-3">♪</div>
+<div class="music-sticker sticker-4">♫</div>
+<div class="music-sticker sticker-5">🎹</div>
+<div class="music-sticker sticker-6">🎻</div>
+<div class="music-sticker sticker-7">🎶</div>
+<div class="music-sticker sticker-8">🎵</div>
+
+<!-- 隐藏的音频元素，用于自动播放背景音乐（无控件/无文字提示） -->
+<audio id="bgAudio" loop autoplay>
+    <source src="https://assets.mixkit.co/music/preview/mixkit-a-very-happy-&-upbeat-weather-1240.mp3" type="audio/mpeg">
+    您的浏览器不支持音乐播放
+</audio>
+
+<div class="container">
+    <div class="hero">
+        <h1><i class="fas fa-treble-clef"></i> 节目单 <i class="fas fa-treble-clef"></i></h1>
+        <!-- 此处完全没有任何音乐播放条或“氛围配乐”文字 -->
+    </div>
+
+    <div class="program-grid">
+        <!-- 1. 管弦乐《我的祖国》指挥：胡旭然老师 -->
+        <div class="program-card">
+            <div class="card-header">
+                <span class="program-num">1</span>
+                <div class="title-wrap">
+                    <div class="program-title">管弦乐《我的祖国》</div>
+                    <div class="program-conductor"><i class="fas fa-hand-baton"></i> 指挥：胡旭然老师</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="ensemble-group"><h4>弦乐组</h4><div class="musician-list">
+                    <span class="musician-tag">王单妮</span><span class="musician-tag">陈佳仪</span><span class="musician-tag">徐光尘</span><span class="musician-tag">陈婉兮</span>
+                    <span class="musician-tag">杨力苏</span><span class="musician-tag">陈誉心</span><span class="musician-tag">梁秉睿</span><span class="musician-tag">吴浩钦</span>
+                    <span class="musician-tag">陈可禹</span><span class="musician-tag">杨烜誉</span><span class="musician-tag">李亦瑄</span><span class="musician-tag">黄靖喆</span>
+                    <span class="musician-tag">郭欣妍</span><span class="musician-tag">李佳轩</span><span class="musician-tag">刘佳宜</span><span class="musician-tag">张诗韵</span>
+                    <span class="musician-tag">赵钰涵</span><span class="musician-tag">刘路熙</span><span class="musician-tag">杨雨橦</span><span class="musician-tag">梁誉恒</span>
+                    <span class="musician-tag">向妍杉</span><span class="musician-tag">胡宸硕</span><span class="musician-tag">闫珍爱</span><span class="musician-tag">夏圣轩</span>
+                    <span class="musician-tag">马文欣</span><span class="musician-tag">王悦杨</span>
+                </div></div>
+                <div class="ensemble-group"><h4>管乐组</h4><div class="musician-list">
+                    <span class="musician-tag">李奕凝</span><span class="musician-tag">江铖</span><span class="musician-tag">周洛伊</span><span class="musician-tag">李子轩</span>
+                    <span class="musician-tag">王子骏</span><span class="musician-tag">汪天朗</span><span class="musician-tag">李辰宇</span><span class="musician-tag">唐子越</span>
+                    <span class="musician-tag">吴宝骆</span><span class="musician-tag">信仰</span><span class="musician-tag">李玟依</span><span class="musician-tag">杨王芷柔</span>
+                    <span class="musician-tag">瞿禔萱</span><span class="musician-tag">罗梓源</span><span class="musician-tag">张鑫月</span><span class="musician-tag">王语熙</span>
+                    <span class="musician-tag">宋文礼</span><span class="musician-tag">秦乾</span><span class="musician-tag">周佳樱</span><span class="musician-tag">孙锦熙</span>
+                    <span class="musician-tag">何承林</span><span class="musician-tag">李卓尔</span>
+                </div></div>
+            </div>
+        </div>
+
+        <!-- 2. 管乐团《超越》、《一往无前》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">2</span><div class="title-wrap"><div class="program-title">管乐团《超越》·《一往无前》</div></div></div>
+            <div class="card-body">
+                <div class="ensemble-group"><h4>长笛</h4><div class="musician-list"><span class="musician-tag">宋文礼</span><span class="musician-tag">周佳樱</span><span class="musician-tag">王语熙</span><span class="musician-tag">张鑫月</span></div></div>
+                <div class="ensemble-group"><h4>单簧管</h4><div class="musician-list"><span class="musician-tag">李奕凝</span><span class="musician-tag">唐子越</span></div></div>
+                <div class="ensemble-group"><h4>双簧管</h4><div class="musician-list"><span class="musician-tag">李辰宇</span><span class="musician-tag">杨王芷柔</span><span class="musician-tag">李玟依</span><span class="musician-tag">吴宝骆</span></div></div>
+                <div class="ensemble-group"><h4>小号</h4><div class="musician-list"><span class="musician-tag">王子骏</span><span class="musician-tag">江铖</span><span class="musician-tag">罗梓源</span><span class="musician-tag">李卓尔</span><span class="musician-tag">何承林</span><span class="musician-tag">孙锦熙</span></div></div>
+                <div class="ensemble-group"><h4>圆号</h4><div class="musician-list"><span class="musician-tag">周洛伊</span><span class="musician-tag">信仰</span></div></div>
+                <div class="ensemble-group"><h4>长号</h4><div class="musician-list"><span class="musician-tag">汪天朗</span></div></div>
+                <div class="ensemble-group"><h4>大管</h4><div class="musician-list"><span class="musician-tag">瞿禔萱</span></div></div>
+                <div class="ensemble-group"><h4>打击乐</h4><div class="musician-list"><span class="musician-tag">秦乾</span><span class="musician-tag">李子轩</span></div></div>
+            </div>
+        </div>
+
+        <!-- 3. 小提琴独奏《查尔达什》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">3</span><div class="title-wrap"><div class="program-title">小提琴独奏《查尔达什》</div></div></div>
+            <div class="card-body"><div class="ensemble-group"><h4>独奏</h4><div class="musician-list"><span class="musician-tag">王单妮</span></div></div></div>
+        </div>
+
+        <!-- 4. 单簧管重奏《peitite Quartet》、《哇哈哈》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">4</span><div class="title-wrap"><div class="program-title">单簧管重奏《peitite Quartet》·《哇哈哈》</div></div></div>
+            <div class="card-body">
+                <div class="ensemble-group"><h4>重奏组</h4><div class="musician-list">
+                    <span class="musician-tag">李奕凝</span><span class="musician-tag">王梓瑜</span><span class="musician-tag">刘钦禹</span><span class="musician-tag">唐子越</span>
+                    <span class="musician-tag">刘芃希</span><span class="musician-tag">范欣蕊</span><span class="musician-tag">王书博</span>
+                </div></div>
+                <div class="ensemble-group"><h4>打击乐</h4><div class="musician-list"><span class="musician-tag">漆仟洵</span><span class="musician-tag">乐夏伊</span><span class="musician-tag">赵涵</span></div></div>
+            </div>
+        </div>
+
+        <!-- 5. 弦乐团《四季的问候》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">5</span><div class="title-wrap"><div class="program-title">弦乐团《四季的问候》</div></div></div>
+            <div class="card-body">
+                <div class="ensemble-group"><h4>第一小提琴</h4><div class="musician-list"><span class="musician-tag">王单妮</span><span class="musician-tag">闫珍爱</span><span class="musician-tag">陈可禹</span><span class="musician-tag">梁秉睿</span><span class="musician-tag">黄靖喆</span><span class="musician-tag">胡宸硕</span></div></div>
+                <div class="ensemble-group"><h4>第二小提琴</h4><div class="musician-list"><span class="musician-tag">陈佳仪</span><span class="musician-tag">徐光尘</span><span class="musician-tag">吴浩钦</span><span class="musician-tag">马文欣</span><span class="musician-tag">夏圣轩</span><span class="musician-tag">李亦瑄</span><span class="musician-tag">王悦杨</span></div></div>
+                <div class="ensemble-group"><h4>中提琴</h4><div class="musician-list"><span class="musician-tag">陈婉兮</span><span class="musician-tag">杨力苏</span><span class="musician-tag">梁誉恒</span><span class="musician-tag">向妍杉</span><span class="musician-tag">陈誉心</span></div></div>
+                <div class="ensemble-group"><h4>大提琴</h4><div class="musician-list"><span class="musician-tag">杨雨橦</span><span class="musician-tag">杨烜誉</span><span class="musician-tag">李佳轩</span></div></div>
+                <div class="ensemble-group"><h4>低音提琴</h4><div class="musician-list"><span class="musician-tag">刘路熙</span><span class="musician-tag">赵钰涵</span><span class="musician-tag">张诗韵</span><span class="musician-tag">刘佳宜</span></div></div>
+            </div>
+        </div>
+
+        <!-- 6. 双簧管独奏《海顿C大调双簧管协奏曲》第一乐章 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">6</span><div class="title-wrap"><div class="program-title">双簧管独奏《海顿C大调双簧管协奏曲》第一乐章</div></div></div>
+            <div class="card-body"><div class="ensemble-group"><h4>独奏</h4><div class="musician-list"><span class="musician-tag">李辰宇</span></div></div></div>
+        </div>
+
+        <!-- 7. 一年级小提琴《小星星变奏曲》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">7</span><div class="title-wrap"><div class="program-title">一年级小提琴《小星星变奏曲》</div></div></div>
+            <div class="card-body"><div class="ensemble-group"><h4>小提琴齐奏</h4><div class="musician-list">
+                <span class="musician-tag">王梓宁</span><span class="musician-tag">凌瑾杉</span><span class="musician-tag">袁晨熙</span><span class="musician-tag">黄一洲</span><span class="musician-tag">幸瑾玥</span><span class="musician-tag">幸瑾瑄</span>
+                <span class="musician-tag">褚若溪</span><span class="musician-tag">曾筱珺</span><span class="musician-tag">胡松泽</span><span class="musician-tag">林雨汐</span><span class="musician-tag">陈钧延</span><span class="musician-tag">许琳熙</span>
+                <span class="musician-tag">王责衍</span><span class="musician-tag">陈希妍</span><span class="musician-tag">黄浩轩</span><span class="musician-tag">胡悦</span><span class="musician-tag">程异然</span><span class="musician-tag">张晓萌</span>
+                <span class="musician-tag">姬筱荻</span><span class="musician-tag">李昱齐</span><span class="musician-tag">高艺芸</span><span class="musician-tag">熊望月</span>
+            </div></div></div>
+        </div>
+
+        <!-- 8. 一年级打击乐《欢乐颂》 -->
+        <div class="program-card">
+            <div class="card-header"><span class="program-num">8</span><div class="title-wrap"><div class="program-title">一年级打击乐《欢乐颂》</div></div></div>
+            <div class="card-body"><div class="ensemble-group"><h4>打击乐团</h4><div class="musician-list">
+                <span class="musician-tag">常恩瑞</span><span class="musician-tag">张晨熙</span><span class="musician-tag">汪淳锦</span><span class="musician-tag">袁筠畅</span><span class="musician-tag">杨芮嫣</span><span class="musician-tag">李书影</span>
+                <span class="musician-tag">王智明</span><span class="musician-tag">黄楚玥</span><span class="musician-tag">李言希</span><span class="musician-tag">甘纾汀</span><span class="musician-tag">刘亦许</span><span class="musician-tag">安梓妍</span>
+                <span class="musician-tag">徐嫤岑</span><span class="musician-tag">陈霈泽</span><span class="musician-tag">丁则睿</span>
+            </div></div></div>
+        </div>
+
+        <!-- 9. 管弦乐《法兰多拉》指挥：陶娟老师 -->
+        <div class="program-card">
+            <div class="card-header">
+                <span class="program-num">9</span>
+                <div class="title-wrap">
+                    <div class="program-title">管弦乐《法兰多拉》</div>
+                    <div class="program-conductor"><i class="fas fa-hand-baton"></i> 指挥：陶娟老师</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="guide-list">
+                    <h4>指导教师阵容</h4>
+                    <div class="musician-list">
+                        <span class="musician-tag teacher-tag">张维幸老师 (一提)</span>
+                        <span class="musician-tag teacher-tag">胡旭然老师 (二提)</span>
+                        <span class="musician-tag teacher-tag">章宝林老师 (中提)</span>
+                        <span class="musician-tag teacher-tag">刘霞老师 (大提)</span>
+                        <span class="musician-tag teacher-tag">吕志勤老师 (低音提琴)</span>
+                        <span class="musician-tag teacher-tag">胡芳老师 (双簧管)</span>
+                        <span class="musician-tag teacher-tag">郭晓燕老师 (长笛)</span>
+                        <span class="musician-tag teacher-tag">宋政老师 (单簧管)</span>
+                        <span class="musician-tag teacher-tag">罗学海老师 (小号)</span>
+                        <span class="musician-tag teacher-tag">李轶老师 (长号)</span>
+                    </div>
+                </div>
+                <div class="ensemble-group"><h4>弦乐组</h4><div class="musician-list">
+                    <span class="musician-tag">王单妮</span><span class="musician-tag">陈佳仪</span><span class="musician-tag">徐光尘</span><span class="musician-tag">陈婉兮</span>
+                    <span class="musician-tag">杨力苏</span><span class="musician-tag">陈誉心</span><span class="musician-tag">梁秉睿</span><span class="musician-tag">吴浩钦</span>
+                    <span class="musician-tag">陈可禹</span><span class="musician-tag">杨烜誉</span><span class="musician-tag">李亦瑄</span><span class="musician-tag">黄靖喆</span>
+                    <span class="musician-tag">郭欣妍</span><span class="musician-tag">李佳轩</span><span class="musician-tag">刘佳宜</span><span class="musician-tag">张诗韵</span>
+                    <span class="musician-tag">赵钰涵</span><span class="musician-tag">刘路熙</span><span class="musician-tag">杨雨橦</span><span class="musician-tag">梁誉恒</span>
+                    <span class="musician-tag">向妍杉</span><span class="musician-tag">胡宸硕</span><span class="musician-tag">闫珍爱</span><span class="musician-tag">夏圣轩</span>
+                    <span class="musician-tag">马文欣</span><span class="musician-tag">王悦杨</span>
+                </div></div>
+                <div class="ensemble-group"><h4>管乐组</h4><div class="musician-list">
+                    <span class="musician-tag">李奕凝</span><span class="musician-tag">江铖</span><span class="musician-tag">周洛伊</span><span class="musician-tag">李子轩</span>
+                    <span class="musician-tag">王子骏</span><span class="musician-tag">汪天朗</span><span class="musician-tag">李辰宇</span><span class="musician-tag">唐子越</span>
+                    <span class="musician-tag">吴宝骆</span><span class="musician-tag">信仰</span><span class="musician-tag">李玟依</span><span class="musician-tag">杨王芷柔</span>
+                    <span class="musician-tag">瞿禔萱</span><span class="musician-tag">罗梓源</span><span class="musician-tag">张鑫月</span><span class="musician-tag">王语熙</span>
+                    <span class="musician-tag">宋文礼</span><span class="musician-tag">秦乾</span><span class="musician-tag">周佳樱</span><span class="musician-tag">孙锦熙</span>
+                    <span class="musician-tag">何承林</span><span class="musician-tag">李卓尔</span>
+                </div></div>
+                <div class="small-note"><i class="fas fa-star-of-life"></i> 特别鸣谢所有指导老师与参演同学</div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-note">🎵 心随律动 · 共享音乐时刻 🎶</div>
+        <i class="fas fa-music"></i> 感谢全体演出人员 <i class="fas fa-heart" style="color:#8fba6b;"></i>
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // 获取隐藏的audio元素并尝试自动播放（没有任何UI控件或文字提示）
+        const audio = document.getElementById('bgAudio');
+        if (!audio) return;
+        audio.volume = 0.4;
+        // 尝试自动播放
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // 静默失败，不显示任何提示框（根据要求删除了所有文字和表框）
+                console.log("自动播放被浏览器策略阻止，但无任何界面提示");
+            });
+        }
+    })();
+</script>
+</body>
+</html>
+```
